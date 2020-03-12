@@ -1,0 +1,9 @@
+name: gist-bird
+author: Ganesh Kumar T K <ganeshkumartk@outlook.com>
+description: Update a pinned gist to contain the latest tweets of a user
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'twitter'
+  color: 'blue'
