@@ -16,6 +16,22 @@ const {
 } = process.env;
 
 // Support both Bearer Token (app-only) and OAuth 1.0a authentication
+if (!bearerToken) {
+  const missingOAuthVars = [];
+  if (!consumerKey) missingOAuthVars.push("TWITTER_CONSUMER_KEY");
+  if (!consumerSecret) missingOAuthVars.push("TWITTER_CONSUMER_SECRET");
+  if (!accessTokenKey) missingOAuthVars.push("TWITTER_ACCESS_TOKEN_KEY");
+  if (!accessTokenSecret) missingOAuthVars.push("TWITTER_ACCESS_TOKEN_SECRET");
+
+  if (missingOAuthVars.length > 0) {
+    throw new Error(
+      `Twitter authentication is not configured correctly. Either set TWITTER_BEARER_TOKEN, or provide all OAuth 1.0a credentials. Missing environment variables: ${missingOAuthVars.join(
+        ", "
+      )}`
+    );
+  }
+}
+
 const twitterClient = bearerToken
   ? new TwitterApi(bearerToken)
   : new TwitterApi({
