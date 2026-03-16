@@ -31,7 +31,7 @@ If you only need to read your **own** account's tweets you can use **OAuth 1.0a*
 1. Fork this repo.
 2. Edit the environment variables in `.github/workflows/main.yml` (the canonical workflow, runs every 5 min):
 
-   > **Note:** The repo also contains a legacy copy at `.github/workflow/schedule.yml` (runs every 10 min) — update it in the same way if you plan to use it.
+   > **Note:** The repo also contains a legacy reference copy at `.github/workflow/schedule.yml` (configured for every 10 min). GitHub Actions will **not** load it automatically from that path; if you want to use it, move or copy it into `.github/workflows/` and update it in the same way.
 
    - **TWITTER_USER:** The handle of the X account to track (without `@`).
    - **GIST_ID:** The ID portion from your gist URL: `https://gist.github.com/<user>/`**`<gist-id>`**.
