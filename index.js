@@ -80,6 +80,7 @@ async function main() {
         (status ? ` Status: ${status}.` : "") +
         (error && error.message ? ` Message: ${error.message}` : "")
     );
+    process.exit(1);
   }
 }
 
