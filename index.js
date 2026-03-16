@@ -25,6 +25,7 @@ const twitterClient = bearerToken
       accessSecret: accessTokenSecret
     });
 
+const authMode = bearerToken ? "BearerToken" : "OAuth1.0a";
 const twitter = twitterClient.readOnly;
 
 const octokit = new Octokit({
@@ -32,29 +33,38 @@ const octokit = new Octokit({
 });
 
 async function main() {
-  // Resolve the numeric user ID from the screen name
-  const userResponse = await twitter.v2.userByUsername(twitterHandle);
-  if (!userResponse.data) {
-    console.error(`User not found: ${twitterHandle}`);
-    return;
+  try {
+    // Resolve the numeric user ID from the screen name
+    const userResponse = await twitter.v2.userByUsername(twitterHandle);
+    if (!userResponse.data) {
+      console.error(`User not found: ${twitterHandle}`);
+      return;
+    }
+    const userId = userResponse.data.id;
+
+    // Fetch the latest tweet (exclude replies and retweets).
+    // max_results minimum for this endpoint is 5; we take only the first result.
+    const timeline = await twitter.v2.userTimeline(userId, {
+      max_results: 5,
+      exclude: ["replies", "retweets"],
+      "tweet.fields": ["created_at", "public_metrics"]
+    });
+
+    const tweet = timeline.tweets[0];
+    if (!tweet) {
+      console.error(`No tweets found for user: ${twitterHandle}`);
+      return;
+    }
+
+    await updateGist(tweet);
+  } catch (error) {
+    const status = error && (error.status || error.code || error.statusCode);
+    console.error(
+      `Error while calling Twitter API for user "${twitterHandle}" using auth mode "${authMode}".` +
+        (status ? ` Status: ${status}.` : "") +
+        (error && error.message ? ` Message: ${error.message}` : "")
+    );
   }
-  const userId = userResponse.data.id;
-
-  // Fetch the latest tweet (exclude replies and retweets).
-  // max_results minimum for this endpoint is 5; we take only the first result.
-  const timeline = await twitter.v2.userTimeline(userId, {
-    max_results: 5,
-    exclude: ["replies", "retweets"],
-    "tweet.fields": ["created_at", "public_metrics"]
-  });
-
-  const tweet = timeline.tweets[0];
-  if (!tweet) {
-    console.error(`No tweets found for user: ${twitterHandle}`);
-    return;
-  }
-
-  await updateGist(tweet);
 }
 
 async function updateGist(tweet) {
